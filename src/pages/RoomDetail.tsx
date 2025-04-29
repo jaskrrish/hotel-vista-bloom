@@ -8,11 +8,22 @@ import { Button } from '@/components/ui/button';
 import BookingForm from '@/components/BookingForm';
 import { useRoom } from '@/lib/api';
 
+// Modified to add the 'featured' property to make it compatible with the Room type from data.ts
+const addFeaturedProperty = (room: any) => {
+  if (!room) return null;
+  return {
+    ...room,
+    featured: false // Default value since this isn't in the database
+  };
+};
+
 const RoomDetail = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   
-  const { data: room, isLoading, error } = useRoom(id || '');
+  const { data: roomData, isLoading, error } = useRoom(id || '');
+  // Add featured property to the room data to make it compatible with BookingForm
+  const room = addFeaturedProperty(roomData);
   
   if (isLoading) {
     return (

@@ -1,11 +1,15 @@
 
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Room } from '@/lib/data';
-import { toast } from 'sonner';
 import { format, addDays, differenceInDays } from 'date-fns';
 import { useCreateBooking } from '@/lib/api';
 import { Input } from '@/components/ui/input';
+import { Database } from '@/integrations/supabase/types/database';
+
+// Define the Room type based on our database structure
+type Room = Database['public']['Tables']['rooms']['Row'] & {
+  featured?: boolean; // Optional since it's not in our database but used in other components
+};
 
 interface BookingFormProps {
   room: Room;
@@ -51,7 +55,8 @@ const BookingForm = ({ room }: BookingFormProps) => {
       check_out: formData.checkOut,
       guests: Number(formData.guests),
       special_requests: formData.specialRequests || null,
-      total_price: totalPrice
+      total_price: totalPrice,
+      status: 'pending'
     };
     
     createBooking(bookingData);

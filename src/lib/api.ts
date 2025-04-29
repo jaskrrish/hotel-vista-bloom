@@ -18,10 +18,15 @@ export const fetchRooms = async () => {
 
 // Fetch a single room by id
 export const fetchRoomById = async (id: string) => {
+  const numericId = parseInt(id, 10);
+  if (isNaN(numericId)) {
+    throw new Error('Invalid room ID');
+  }
+  
   const { data, error } = await supabase
     .from('rooms')
     .select('*')
-    .eq('id', id)
+    .eq('id', numericId)
     .single();
   
   if (error) throw new Error(error.message);

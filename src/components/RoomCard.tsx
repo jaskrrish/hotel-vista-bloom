@@ -5,7 +5,10 @@ import { Button } from '@/components/ui/button';
 import { User, Check } from 'lucide-react';
 import { Database } from '@/integrations/supabase/types/database';
 
-type Room = Database['public']['Tables']['rooms']['Row'];
+// Define the Room type based on our database structure plus the featured property
+type Room = Database['public']['Tables']['rooms']['Row'] & {
+  featured?: boolean;
+};
 
 interface RoomCardProps {
   room: Room;
