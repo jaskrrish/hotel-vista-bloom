@@ -3,9 +3,12 @@ import React, { useState } from 'react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import RoomCard from '@/components/RoomCard';
-import { rooms, Room } from '@/lib/data';
+import { useRooms } from '@/lib/api';
+import { Loader2 } from 'lucide-react';
 
 const Rooms = () => {
+  const { data: rooms = [], isLoading, error } = useRooms();
+  
   const [filters, setFilters] = useState({
     type: 'all',
     minPrice: 0,
@@ -62,7 +65,7 @@ const Rooms = () => {
                   <option value="standard">Standard</option>
                   <option value="deluxe">Deluxe</option>
                   <option value="suite">Suite</option>
-                  <option value="presidential">Presidential</option>
+                  <option value="family">Family</option>
                 </select>
               </div>
               
@@ -106,22 +109,40 @@ const Rooms = () => {
             </div>
           </div>
           
-          {/* Results */}
-          <div className="mb-6">
-            <p className="text-gray-600">Found {filteredRooms.length} rooms</p>
-          </div>
+          {/* Loading state */}
+          {isLoading && (
+            <div className="flex justify-center items-center py-20">
+              <Loader2 className="h-10 w-10 animate-spin text-hotel-primary" />
+            </div>
+          )}
           
-          {filteredRooms.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {filteredRooms.map(room => (
-                <RoomCard key={room.id} room={room} />
-              ))}
+          {/* Error state */}
+          {error && (
+            <div className="bg-red-50 border-l-4 border-red-400 p-4 mb-6">
+              <p className="text-red-700">Error loading rooms: {error.toString()}</p>
             </div>
-          ) : (
-            <div className="text-center py-12">
-              <h3 className="text-xl font-medium mb-2">No rooms found matching your criteria</h3>
-              <p className="text-gray-600">Please try adjusting your filters</p>
-            </div>
+          )}
+          
+          {/* Results */}
+          {!isLoading && !error && (
+            <>
+              <div className="mb-6">
+                <p className="text-gray-600">Found {filteredRooms.length} rooms</p>
+              </div>
+              
+              {filteredRooms.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                  {filteredRooms.map(room => (
+                    <RoomCard key={room.id} room={room} />
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-12">
+                  <h3 className="text-xl font-medium mb-2">No rooms found matching your criteria</h3>
+                  <p className="text-gray-600">Please try adjusting your filters</p>
+                </div>
+              )}
+            </>
           )}
         </div>
       </section>

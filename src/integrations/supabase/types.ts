@@ -9,7 +9,98 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      bookings: {
+        Row: {
+          check_in: string
+          check_out: string
+          created_at: string | null
+          email: string
+          first_name: string
+          guests: number
+          id: number
+          last_name: string
+          room_id: number
+          special_requests: string | null
+          status: string
+          total_price: number
+        }
+        Insert: {
+          check_in: string
+          check_out: string
+          created_at?: string | null
+          email: string
+          first_name: string
+          guests: number
+          id?: number
+          last_name: string
+          room_id: number
+          special_requests?: string | null
+          status?: string
+          total_price: number
+        }
+        Update: {
+          check_in?: string
+          check_out?: string
+          created_at?: string | null
+          email?: string
+          first_name?: string
+          guests?: number
+          id?: number
+          last_name?: string
+          room_id?: number
+          special_requests?: string | null
+          status?: string
+          total_price?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bookings_room_id_fkey"
+            columns: ["room_id"]
+            isOneToOne: false
+            referencedRelation: "rooms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rooms: {
+        Row: {
+          amenities: string[]
+          availability: boolean | null
+          capacity: number
+          description: string
+          id: number
+          image: string
+          name: string
+          price: number
+          size: number
+          type: string
+        }
+        Insert: {
+          amenities?: string[]
+          availability?: boolean | null
+          capacity: number
+          description: string
+          id?: number
+          image: string
+          name: string
+          price: number
+          size: number
+          type: string
+        }
+        Update: {
+          amenities?: string[]
+          availability?: boolean | null
+          capacity?: number
+          description?: string
+          id?: number
+          image?: string
+          name?: string
+          price?: number
+          size?: number
+          type?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

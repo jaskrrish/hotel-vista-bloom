@@ -1,26 +1,38 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Room } from '@/lib/data';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
+import { format, addDays, differenceInDays } from 'date-fns';
+import { useCreateBooking } from '@/lib/api';
+import { Input } from '@/components/ui/input';
 
 interface BookingFormProps {
   room: Room;
 }
 
 const BookingForm = ({ room }: BookingFormProps) => {
-  const { toast } = useToast();
+  const { mutate: createBooking, isPending } = useCreateBooking();
+  
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
     email: '',
-    checkIn: '',
-    checkOut: '',
+    checkIn: format(new Date(), 'yyyy-MM-dd'),
+    checkOut: format(addDays(new Date(), 1), 'yyyy-MM-dd'),
     guests: 1,
     specialRequests: ''
   });
   
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [totalPrice, setTotalPrice] = useState(room.price);
+
+  // Calculate total price when dates change
+  useEffect(() => {
+    const checkInDate = new Date(formData.checkIn);
+    const checkOutDate = new Date(formData.checkOut);
+    const nights = Math.max(1, differenceInDays(checkOutDate, checkInDate));
+    setTotalPrice(room.price * nights);
+  }, [formData.checkIn, formData.checkOut, room.price]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -29,28 +41,20 @@ const BookingForm = ({ room }: BookingFormProps) => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSubmitting(true);
     
-    // Simulating API call
-    setTimeout(() => {
-      setIsSubmitting(false);
-      toast({
-        title: "Booking Successful!",
-        description: `Thank you for booking the ${room.name}. You will receive a confirmation email shortly.`,
-        duration: 5000,
-      });
-      
-      // Reset form
-      setFormData({
-        firstName: '',
-        lastName: '',
-        email: '',
-        checkIn: '',
-        checkOut: '',
-        guests: 1,
-        specialRequests: ''
-      });
-    }, 1500);
+    const bookingData = {
+      room_id: room.id,
+      first_name: formData.firstName,
+      last_name: formData.lastName,
+      email: formData.email,
+      check_in: formData.checkIn,
+      check_out: formData.checkOut,
+      guests: Number(formData.guests),
+      special_requests: formData.specialRequests || null,
+      total_price: totalPrice
+    };
+    
+    createBooking(bookingData);
   };
 
   return (
@@ -61,68 +65,70 @@ const BookingForm = ({ room }: BookingFormProps) => {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="space-y-1">
             <label htmlFor="firstName" className="text-sm font-medium text-gray-700">First Name</label>
-            <input
+            <Input
               type="text"
               id="firstName"
               name="firstName"
               value={formData.firstName}
               onChange={handleChange}
               required
-              className="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-hotel-primary"
+              className="w-full"
             />
           </div>
           
           <div className="space-y-1">
             <label htmlFor="lastName" className="text-sm font-medium text-gray-700">Last Name</label>
-            <input
+            <Input
               type="text"
               id="lastName"
               name="lastName"
               value={formData.lastName}
               onChange={handleChange}
               required
-              className="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-hotel-primary"
+              className="w-full"
             />
           </div>
         </div>
         
         <div className="space-y-1">
           <label htmlFor="email" className="text-sm font-medium text-gray-700">Email</label>
-          <input
+          <Input
             type="email"
             id="email"
             name="email"
             value={formData.email}
             onChange={handleChange}
             required
-            className="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-hotel-primary"
+            className="w-full"
           />
         </div>
         
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="space-y-1">
             <label htmlFor="checkIn" className="text-sm font-medium text-gray-700">Check In</label>
-            <input
+            <Input
               type="date"
               id="checkIn"
               name="checkIn"
               value={formData.checkIn}
               onChange={handleChange}
+              min={format(new Date(), 'yyyy-MM-dd')}
               required
-              className="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-hotel-primary"
+              className="w-full"
             />
           </div>
           
           <div className="space-y-1">
             <label htmlFor="checkOut" className="text-sm font-medium text-gray-700">Check Out</label>
-            <input
+            <Input
               type="date"
               id="checkOut"
               name="checkOut"
               value={formData.checkOut}
               onChange={handleChange}
+              min={format(addDays(new Date(formData.checkIn), 1), 'yyyy-MM-dd')}
               required
-              className="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-hotel-primary"
+              className="w-full"
             />
           </div>
         </div>
@@ -157,15 +163,15 @@ const BookingForm = ({ room }: BookingFormProps) => {
         <div className="border-t border-gray-100 pt-4">
           <div className="flex justify-between items-center mb-4">
             <div>
-              <p className="text-sm text-gray-600">Price per night</p>
-              <p className="text-hotel-primary font-semibold">${room.price}</p>
+              <p className="text-sm text-gray-600">Total price</p>
+              <p className="text-hotel-primary font-semibold">${totalPrice.toFixed(2)}</p>
             </div>
             <Button 
               type="submit" 
-              disabled={isSubmitting}
+              disabled={isPending}
               className="bg-hotel-accent hover:bg-hotel-accent/90 text-white"
             >
-              {isSubmitting ? 'Processing...' : 'Book Now'}
+              {isPending ? 'Processing...' : 'Book Now'}
             </Button>
           </div>
           

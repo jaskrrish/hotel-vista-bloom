@@ -3,24 +3,37 @@ import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import { rooms } from '@/lib/data';
-import { Check, ArrowLeft } from 'lucide-react';
+import { Check, ArrowLeft, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import BookingForm from '@/components/BookingForm';
+import { useRoom } from '@/lib/api';
 
 const RoomDetail = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   
-  const room = rooms.find(r => r.id.toString() === id);
+  const { data: room, isLoading, error } = useRoom(id || '');
   
-  if (!room) {
+  if (isLoading) {
+    return (
+      <div>
+        <Navbar />
+        <div className="hotel-container py-16 text-center">
+          <Loader2 className="h-10 w-10 animate-spin text-hotel-primary mx-auto" />
+          <p className="mt-4">Loading room details...</p>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+  
+  if (error || !room) {
     return (
       <div>
         <Navbar />
         <div className="hotel-container py-16 text-center">
           <h2 className="text-2xl font-bold mb-4">Room not found</h2>
-          <p className="mb-6">The room you're looking for doesn't exist.</p>
+          <p className="mb-6">{error ? `Error: ${error.toString()}` : "The room you're looking for doesn't exist."}</p>
           <Button onClick={() => navigate('/rooms')} className="bg-hotel-primary hover:bg-hotel-secondary">
             View All Rooms
           </Button>
