@@ -15,7 +15,7 @@ const HeroSection = () => {
             Luxury Stays for Unforgettable Experiences
           </h1>
           <p className="text-xl text-white/90 mb-8">
-            Experience premium comfort and unparalleled service at Vista Bloom Hotel. 
+            Experience premium comfort and unparalleled service at Hotel Holiday. 
             Your perfect getaway awaits.
           </p>
           <div className="flex flex-col sm:flex-row gap-4">

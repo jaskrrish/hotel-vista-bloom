@@ -17,9 +17,9 @@ const Index = () => {
         <div className="hotel-container">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
             <div>
-              <h2 className="text-3xl font-bold mb-6">Experience Luxury at Vista Bloom Hotel</h2>
+              <h2 className="text-3xl font-bold mb-6">Experience Luxury at Hotel Holiday</h2>
               <p className="text-gray-600 mb-6">
-                Located in the heart of the city, Vista Bloom Hotel offers an unparalleled blend of comfort, 
+                Located in the heart of the city, Hotel Holiday offers an unparalleled blend of comfort, 
                 convenience, and luxury. Our commitment to excellence ensures that every moment of your 
                 stay is memorable and enjoyable.
               </p>

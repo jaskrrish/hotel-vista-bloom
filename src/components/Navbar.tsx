@@ -12,7 +12,7 @@ const Navbar = () => {
       <div className="hotel-container flex justify-between items-center py-4">
         {/* Logo */}
         <Link to="/" className="flex items-center">
-          <h1 className="text-2xl font-bold text-hotel-primary">Vista Bloom</h1>
+          <h1 className="text-2xl font-bold text-hotel-primary">Hotel Holiday</h1>
         </Link>
 
         {/* Desktop Navigation */}
